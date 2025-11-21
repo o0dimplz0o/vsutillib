@@ -8,6 +8,7 @@ Output widget form just to output text in color
 
 import inspect
 import logging
+import platform
 
 from typing import Dict, Optional, Union
 
@@ -48,6 +49,11 @@ class QOutputTextWidget(QTextEdit):
 
         self.insertTextSignal.connect(self.insertText)
         self.clearSignal.connect(super().clear)
+        
+	# On macOS, tell this widget we're in dark mode
+        # so checkColor() uses light text on dark background.
+        if platform.system() == "Darwin":
+            QOutputTextWidget.isDarkMode = True
 
     @classmethod
     def classLog(cls, setLogging: Optional[bool] = None) -> bool:
