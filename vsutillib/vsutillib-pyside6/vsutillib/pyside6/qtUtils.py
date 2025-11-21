@@ -24,22 +24,25 @@ MODULELOG = logging.getLogger(__name__)
 MODULELOG.addHandler(logging.NullHandler())
 
 
-def centerWidget(widget: QWidget, parent: Optional[QWidget] = None) -> None:
-    """center widget based on parent or screen geometry"""
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import Qt
 
-    if parent is None:
-        parent = widget.parentWidget()
+def centerWidget(widget):
+    """ Center a widget on the primary screen (safe for macOS / M1). """
 
-    if parent:
-        widget.move(parent.frameGeometry().center() -
-                    widget.frameGeometry().center())
+    # Must get screen from QGuiApplication, not instantiate QScreen()
+    screen = QGuiApplication.primaryScreen()
+    if screen is None:
+        return  # failsafe—just don't center
 
-    else:
-        widget.move(
-            QScreen().availableGeometry().center()
-            - widget.frameGeometry().center()
-        )
+    screen_geo = screen.availableGeometry()
+    widget_geo = widget.frameGeometry()
 
+    # Compute centered position
+    center_point = screen_geo.center()
+    widget_geo.moveCenter(center_point)
+
+    widget.move(widget_geo.topLeft())
 
 def pushButton(
         label: str,
